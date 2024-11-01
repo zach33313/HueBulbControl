@@ -71,6 +71,27 @@ class HueBulbClient:
         except Exception as e:
             print(f"Unexpected error: {e}")
             return False
+    async def write_brightness(self, light_level):
+        if self.client is None or not self.client.is_connected:
+            print("Client is not connected, attempting to reconnect...")
+            connected = await self.connect()
+            if not connected:
+                print("Failed to reconnect to bulb.")
+                return False
+        byte_light_level = bytearray([light_level,])
+        try:
+            await self.client.write_gatt_char(BRIGHTNESS_CHARACTERISTIC, byte_light_level)
+            print(f"Set color to {light_level}")
+            return True
+        except BleakError as e:
+            print(f"Failed to write light_level to bulb: {e}")
+            if 'Authentication required' in str(e):
+                print("Authentication required. Please pair the device manually in Windows settings.")
+            return False
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return False
+        
 
     async def disconnect(self):
         if self.client and self.client.is_connected:
@@ -103,6 +124,16 @@ async def set_light_color():
         return jsonify({"status": "success", "color": rgb})
     else:
         return jsonify({"status": "failed", "message": "Could not set color"}), 500
+@app.route('/set_brightness', methods=['POST'])
+async def set_light_color():
+    data = await request.get_json()
+    brightness = data.get("brightness", 100)  # Default to white if no color provided
+
+    success = await bulb_client.write_brightness(brightness)
+    if success:
+        return jsonify({"status": "success", "brightness": brightness})
+    else:
+        return jsonify({"status": "failed", "message": "Could not set brightness"}), 500
 
 if __name__ == '__main__':
     # On Windows, set the event loop policy for asyncio
