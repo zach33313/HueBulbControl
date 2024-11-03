@@ -125,7 +125,7 @@ async def set_light_color():
     else:
         return jsonify({"status": "failed", "message": "Could not set color"}), 500
 @app.route('/set_brightness', methods=['POST'])
-async def set_light_color():
+async def set_light_brightness():
     data = await request.get_json()
     brightness = data.get("brightness", 100)  # Default to white if no color provided
 
