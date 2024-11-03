@@ -20,7 +20,7 @@ length_measurement_boolean_light = False
 
 length_measurement_boolean_brightness = False
 
-url = "http://10.0.0.88:5000"
+url = "http://" #ADD YOUR OWN BACKEND URL HERE!!!!!  
 
 # Last time the volume was updated
 last_volume_update = 0
